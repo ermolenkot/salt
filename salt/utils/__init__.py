@@ -705,6 +705,34 @@ def backup_minion(path, bkroot):
     if not salt.utils.is_windows():
         os.chown(bkpath, fstat.st_uid, fstat.st_gid)
 
+def backup_in_samedir(path):
+    '''
+    Backup a file on the minion
+    '''
+    dname, bname = os.path.split(path)
+    bkroot = dname
+    if salt.utils.is_windows():
+        src_dir = dname.replace(':', '_')
+    else:
+        src_dir = dname[1:]
+    if not salt.utils.is_windows():
+        fstat = os.stat(path)
+    msecs = str(int(time.time() * 1000000))[-6:]
+    if salt.utils.is_windows():
+        # ':' is an illegal filesystem path character on Windows
+        stamp = time.strftime('%a_%b_%d_%H-%M-%S_%Y')
+    else:
+        stamp = time.strftime('%a_%b_%d_%H:%M:%S_%Y')
+    stamp = '{0}{1}_{2}'.format(stamp[:-4], msecs, stamp[-4:])
+    bkpath = os.path.join(bkroot,
+                          '{0}_{1}'.format(bname, stamp))
+    if not os.path.isdir(os.path.dirname(bkpath)):
+        os.makedirs(os.path.dirname(bkpath))
+    shutil.copyfile(path, bkpath)
+    if not salt.utils.is_windows():
+        os.chown(bkpath, fstat.st_uid, fstat.st_gid)
+
+
 
 def path_join(*parts):
     '''
