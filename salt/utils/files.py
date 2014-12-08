@@ -52,6 +52,9 @@ def copyfile(source, dest, backup_mode='', cachedir=''):
     if backup_mode == 'minion' or backup_mode == 'both' and bkroot:
         if os.path.exists(dest):
             salt.utils.backup_minion(dest, bkroot)
+    if backup_mode == 'in_samedir':
+        if os.path.exists(dest):
+            salt.utils.backup_in_samedir(dest)
     if backup_mode == 'master' or backup_mode == 'both' and bkroot:
         # TODO, backup to master
         pass
